@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rádios de Portugal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* HEADER FIXO - sempre visível */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #000000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* container ajustado */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px 20px 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #ff9900;
+            margin: 0;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .header-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 14px;
+            background: #1a1a1a;
+            color: #ff9900;
+            border: 1px solid #333;
+        }
+
+        .header-btn:hover {
+            background: #ff9900;
+            color: #000000;
+            transform: scale(1.1);
+        }
+
+        /* Botão limpar com cor diferente */
+        .clear-btn {
+            background: #1a1a1a;
+            color: #ff5555;
+            border: 1px solid #ff5555;
+        }
+
+        .clear-btn:hover {
+            background: #ff5555;
+            color: #000000;
+            border-color: #ff5555;
+        }
+
+        .radio-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .radio-item:hover {
+            background: #1a1a1a;
+            border-color: #666666;
+        }
+
+        .radio-item.playing {
+            background: #1a3300;
+            border-color: #00ff00;
+        }
+
+        .radio-info {
+            flex: 1;
+        }
+
+        .radio-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .radio-link {
+            font-size: 11px;
+            color: #888888;
+            margin-top: 3px;
+            word-break: break-all;
+        }
+
+        .radio-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .play-btn {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+            min-width: 45px;
+            text-transform: uppercase;
+            background: #00ff00;
+            color: #000000;
+        }
+
+        .play-btn:hover {
+            background: #00cc00;
+        }
+
+        .play-btn.playing {
+            background: #ff3333;
+        }
+
+        .play-btn.playing:hover {
+            background: #cc0000;
+        }
+
+        /* Botões de editar e apagar */
+        .edit-btn, .delete-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-btn {
+            background: #2c3e50;
+            color: #ff9900;
+            border: 1px solid #ff9900;
+        }
+
+        .edit-btn:hover {
+            background: #ff9900;
+            color: #000000;
+            transform: scale(1.05);
+        }
+
+        .delete-btn {
+            background: #2c2c2c;
+            color: #ff5555;
+            border: 1px solid #ff5555;
+        }
+
+        .delete-btn:hover {
+            background: #ff5555;
+            color: #000000;
+            transform: scale(1.05);
+        }
+
+        /* File input hidden */
+        .file-input {
+            display: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #000000;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 450px;
+            border: 2px solid #ff9900;
+        }
+
+        .modal-content h2 {
+            color: #ff9900;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #ff9900;
+            color: #ffffff;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffaa22;
+            background: #222222;
+        }
+
+        .form-group input::placeholder {
+            color: #666666;
+        }
+
+        .file-info {
+            background: #1a1a1a;
+            border: 2px dashed #ff9900;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-info:hover {
+            background: #222222;
+            border-color: #ffaa22;
+        }
+
+        .file-info .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: block;
+            color: #ff9900;
+        }
+
+        .file-info .text {
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .file-info .filename {
+            color: #ff9900;
+            font-weight: bold;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+
+        .warning-text {
+            color: #ff9900;
+            font-size: 12px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .save-btn, .confirm-btn, .cancel-btn, .danger-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .save-btn {
+            background: #ff9900;
+            color: #000000;
+        }
+
+        .save-btn:hover {
+            background: #ffaa22;
+        }
+
+        .confirm-btn {
+            background: #9b59b6;
+            color: #ffffff;
+        }
+
+        .confirm-btn:hover:not(:disabled) {
+            background: #8e44ad;
+        }
+
+        .confirm-btn:disabled {
+            background: #444444;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .danger-btn {
+            background: #ff5555;
+            color: #000000;
+        }
+
+        .danger-btn:hover {
+            background: #ff3333;
+        }
+
+        .cancel-btn {
+            background: #333333;
+            color: #ffffff;
+            border: 1px solid #666666;
+        }
+
+        .cancel-btn:hover {
+            background: #444444;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #666666;
+            font-size: 12px;
+        }
+
+        audio {
+            display: none;
+        }
+
+        /* Pequeno ajuste */
+        .radio-list::before {
+            content: '';
+            display: block;
+            height: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER FIXO - com botão limpar -->
+    <div class="header">
+        <h1>RÁDIOS DE PORTUGAL</h1>
+        <div class="header-buttons">
+            <button class="header-btn clear-btn" onclick="clearAllRadios()" title="Limpar todas as estações">🗑️</button>
+            <button class="header-btn export-btn" onclick="exportRadios()" title="Exportar lista para JSON">⬇️</button>
+            <button class="header-btn import-btn" onclick="openImportModal()" title="Importar lista de JSON">📂</button>
+            <button class="header-btn add-btn" onclick="openAddModal()" title="Adicionar nova estação">+</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <ul class="radio-list" id="radioList">
+            <!-- As rádios serão inseridas aqui via JavaScript -->
+        </ul>
+
+        <div class="footer">
+            <p>🗑️ limpar | + adicionar | ⬇️ exportar | 📂 importar | ✏️ editar | 🗑️ apagar</p>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar rádio -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h2>➕ ADICIONAR ESTAÇÃO</h2>
+            <div class="form-group">
+                <label>NOME DA RÁDIO</label>
+                <input type="text" id="radioName" placeholder="Ex: Rádio Comercial">
+            </div>
+            <div class="form-group">
+                <label>LINK DO STREAM</label>
+                <input type="url" id="radioUrl" placeholder="https://exemplo.com/stream.mp3">
+            </div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="addRadio()">GUARDAR</button>
+                <button class="cancel-btn" onclick="closeAddModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar rádio -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2>✏️ EDITAR ESTAÇÃO</h2>
+            <div class="form-group">
+                <label>NOME DA RÁDIO</label>
+                <input type="text" id="editRadioName" placeholder="Ex: Rádio Comercial">
+            </div>
+            <div class="form-group">
+                <label>LINK DO STREAM</label>
+                <input type="url" id="editRadioUrl" placeholder="https://exemplo.com/stream.mp3">
+            </div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="saveEditRadio()">ATUALIZAR</button>
+                <button class="cancel-btn" onclick="closeEditModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para importar ficheiro -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <h2>📂 IMPORTAR FICHEIRO</h2>
+            
+            <div class="file-info" onclick="document.getElementById('fileInput').click()">
+                <span class="icon">📂</span>
+                <span class="text">Clique para selecionar um ficheiro JSON</span>
+                <div class="filename" id="selectedFilename"></div>
+            </div>
+
+            <input type="file" id="fileInput" class="file-input" accept=".json,application/json">
+
+            <p class="warning-text">⚠️ Atenção: A importação irá substituir TODAS as estações atuais!</p>
+
+            <div class="modal-buttons">
+                <button class="confirm-btn" id="importConfirmBtn" onclick="importFromFile()" disabled>IMPORTAR</button>
+                <button class="cancel-btn" onclick="closeImportModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemento de áudio global -->
+    <audio id="globalAudio" controls style="display: none;"></audio>
+
+    <script>
+        // Chave para o localStorage
+        const STORAGE_KEY = 'radiosPortugal';
+
+        // Lista inicial de rádios (só é usada na primeira vez que a app abre)
+        const defaultRadios = [
+            { nome: "TSF", stream: "https://directo.tsf.pt/tsfdirecto.mp3" },
+            { nome: "Antena 3", stream: "https://radiocast.rtp.pt/antena380a.mp3" },
+            { nome: "RFM", stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC" }
+        ];
+
+        // Carregar rádios do localStorage
+        let radios = [];
+
+        function loadRadios() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            
+            // Verificar se existe algo guardado
+            if (saved !== null) {
+                try {
+                    // Tenta fazer parse do que está guardado
+                    const parsed = JSON.parse(saved);
+                    
+                    // Verifica se é um array (mesmo que vazio)
+                    if (Array.isArray(parsed)) {
+                        radios = parsed;
+                    } else {
+                        // Se não for array, usa defaults
+                        radios = [...defaultRadios];
+                    }
+                } catch (e) {
+                    // Erro no parse, usar defaults
+                    radios = [...defaultRadios];
+                }
+            } else {
+                // Primeira vez que abre a app - usar defaults
+                radios = [...defaultRadios];
+            }
+            
+            // Guardar no localStorage para garantir consistência
+            saveRadios();
+            
+            // Renderizar
+            renderRadios();
+        }
+
+        // Guardar rádios no localStorage
+        function saveRadios() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(radios));
+        }
+
+        const radioList = document.getElementById('radioList');
+        const addModal = document.getElementById('addModal');
+        const editModal = document.getElementById('editModal');
+        const importModal = document.getElementById('importModal');
+        const globalAudio = document.getElementById('globalAudio');
+        const importConfirmBtn = document.getElementById('importConfirmBtn');
+        const selectedFilename = document.getElementById('selectedFilename');
+        const fileInput = document.getElementById('fileInput');
+        
+        let currentPlaying = null;
+        let editIndex = null; // Índice da rádio sendo editada
+
+        // Função para renderizar a lista de rádios
+        function renderRadios() {
+            if (!radios || radios.length === 0) {
+                radioList.innerHTML = '<li style="text-align: center; padding: 30px; color: #666;">Nenhuma rádio disponível. Adicione uma nova.</li>';
+                return;
+            }
+            
+            radioList.innerHTML = '';
+            radios.forEach((radio, index) => {
+                if (!radio || !radio.nome || !radio.stream) return;
+                
+                const li = document.createElement('li');
+                li.className = 'radio-item';
+                if (currentPlaying === index) {
+                    li.classList.add('playing');
+                }
+                
+                const shortLink = radio.stream.length > 50 ? radio.stream.substring(0, 47) + '...' : radio.stream;
+                
+                li.innerHTML = `
+                    <div class="radio-info">
+                        <div class="radio-name">${escapeHtml(radio.nome)}</div>
+                        <div class="radio-link">${escapeHtml(shortLink)}</div>
+                    </div>
+                    <div class="radio-actions">
+                        <button class="play-btn ${currentPlaying === index ? 'playing' : ''}" onclick="toggleRadio(${index})">
+                            ${currentPlaying === index ? 'STOP' : 'PLAY'}
+                        </button>
+                        <button class="edit-btn" onclick="openEditModal(${index})" title="Editar">✏️</button>
+                        <button class="delete-btn" onclick="deleteRadio(${index})" title="Apagar">🗑️</button>
+                    </div>
+                `;
+                
+                radioList.appendChild(li);
+            });
+            
+            saveRadios();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>"]/g, function(match) {
+                if (match === '&') return '&amp;';
+                if (match === '<') return '&lt;';
+                if (match === '>') return '&gt;';
+                if (match === '"') return '&quot;';
+                return match;
+            });
+        }
+
+        function toggleRadio(index) {
+            if (!radios[index]) return;
+            
+            const radio = radios[index];
+            
+            if (currentPlaying === index) {
+                globalAudio.pause();
+                currentPlaying = null;
+                renderRadios();
+            } else {
+                if (currentPlaying !== null) {
+                    globalAudio.pause();
+                }
+                
+                currentPlaying = index;
+                renderRadios();
+                
+                globalAudio.src = radio.stream;
+                globalAudio.play()
+                    .catch(error => {
+                        console.error('Erro ao reproduzir:', error);
+                        alert('Não foi possível reproduzir esta rádio. O link pode não estar disponível.');
+                        currentPlaying = null;
+                        renderRadios();
+                    });
+            }
+        }
+
+        // Função para apagar uma rádio individual
+        function deleteRadio(index) {
+            if (!radios[index]) return;
+            
+            const radioNome = radios[index].nome;
+            if (confirm(`Tem certeza que deseja apagar a rádio "${radioNome}"?`)) {
+                // Se a rádio que está a ser apagada está a tocar, parar
+                if (currentPlaying === index) {
+                    globalAudio.pause();
+                    currentPlaying = null;
+                }
+                
+                // Remover a rádio do array
+                radios.splice(index, 1);
+                
+                // Ajustar o currentPlaying se necessário
+                if (currentPlaying !== null && currentPlaying > index) {
+                    currentPlaying--;
+                }
+                
+                renderRadios();
+            }
+        }
+
+        // Funções do modal de adicionar
+        function openAddModal() {
+            addModal.classList.add('show');
+            document.getElementById('radioName').value = '';
+            document.getElementById('radioUrl').value = '';
+        }
+
+        function closeAddModal() {
+            addModal.classList.remove('show');
+        }
+
+        function addRadio() {
+            const nome = document.getElementById('radioName').value.trim();
+            const stream = document.getElementById('radioUrl').value.trim();
+            
+            if (!nome || !stream) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            if (!stream.startsWith('http://') && !stream.startsWith('https://')) {
+                alert('Por favor, insira um link válido (deve começar com http:// ou https://)');
+                return;
+            }
+            
+            radios.push({ nome, stream });
+            renderRadios();
+            closeAddModal();
+        }
+
+        // Funções do modal de editar
+        function openEditModal(index) {
+            if (!radios[index]) return;
+            
+            editIndex = index;
+            const radio = radios[index];
+            
+            document.getElementById('editRadioName').value = radio.nome;
+            document.getElementById('editRadioUrl').value = radio.stream;
+            
+            editModal.classList.add('show');
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('show');
+            editIndex = null;
+        }
+
+        function saveEditRadio() {
+            if (editIndex === null || !radios[editIndex]) {
+                closeEditModal();
+                return;
+            }
+            
+            const nome = document.getElementById('editRadioName').value.trim();
+            const stream = document.getElementById('editRadioUrl').value.trim();
+            
+            if (!nome || !stream) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            if (!stream.startsWith('http://') && !stream.startsWith('https://')) {
+                alert('Por favor, insira um link válido (deve começar com http:// ou https://)');
+                return;
+            }
+            
+            // Se a rádio que está a ser editada está a tocar, parar
+            if (currentPlaying === editIndex) {
+                globalAudio.pause();
+                currentPlaying = null;
+            }
+            
+            // Atualizar os dados
+            radios[editIndex].nome = nome;
+            radios[editIndex].stream = stream;
+            
+            renderRadios();
+            closeEditModal();
+        }
+
+        // Função para exportar rádios
+        function exportRadios() {
+            if (!radios || radios.length === 0) {
+                alert('Não há rádios para exportar');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(radios, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `radios-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        // FUNÇÃO DE IMPORTAÇÃO
+        function openImportModal() {
+            importModal.classList.add('show');
+            selectedFilename.textContent = '';
+            importConfirmBtn.disabled = true;
+            fileInput.value = '';
+        }
+
+        function closeImportModal() {
+            importModal.classList.remove('show');
+        }
+
+        // Detetar quando um ficheiro é selecionado
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                importConfirmBtn.disabled = true;
+                selectedFilename.textContent = '';
+                return;
+            }
+
+            selectedFilename.textContent = file.name;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    // Parse do JSON
+                    const importedRadios = JSON.parse(e.target.result);
+                    
+                    // Verificar se é um array
+                    if (!Array.isArray(importedRadios)) {
+                        throw new Error('O ficheiro deve conter um array');
+                    }
+                    
+                    // Validar cada rádio
+                    let validCount = 0;
+                    for (let i = 0; i < importedRadios.length; i++) {
+                        const radio = importedRadios[i];
+                        if (radio && radio.nome && radio.stream) {
+                            validCount++;
+                        }
+                    }
+                    
+                    if (validCount === 0) {
+                        throw new Error('Nenhuma rádio válida encontrada');
+                    }
+                    
+                    // Guardar os dados e ativar botão
+                    window.importedData = importedRadios;
+                    importConfirmBtn.disabled = false;
+                    
+                } catch (error) {
+                    alert('Erro no ficheiro: ' + error.message);
+                    selectedFilename.textContent = '❌ Ficheiro inválido';
+                    window.importedData = null;
+                    importConfirmBtn.disabled = true;
+                }
+            };
+            
+            reader.readAsText(file);
+        });
+
+        // Função para importar do ficheiro (sem confirmação)
+        function importFromFile() {
+            if (!window.importedData) return;
+            
+            // Parar reprodução
+            if (currentPlaying !== null) {
+                globalAudio.pause();
+                currentPlaying = null;
+            }
+            
+            // Substituir lista
+            radios = window.importedData.slice();
+            
+            // Atualizar interface
+            renderRadios();
+            
+            // Fechar modal
+            closeImportModal();
+            
+            // Limpar dados
+            window.importedData = null;
+            importConfirmBtn.disabled = true;
+        }
+
+        // Função para limpar lista (sem confirmação)
+        function clearAllRadios() {
+            if (confirm('⚠️ Tem certeza que deseja REMOVER TODAS as rádios? Esta ação não pode ser desfeita.')) {
+                if (currentPlaying !== null) {
+                    globalAudio.pause();
+                    currentPlaying = null;
+                }
+                
+                // Limpar o array
+                radios = [];
+                
+                // Guardar no localStorage
+                saveRadios();
+                
+                // Atualizar interface
+                renderRadios();
+            }
+        }
+
+        // Eventos para fechar modais
+        addModal.addEventListener('click', function(e) {
+            if (e.target === addModal) closeAddModal();
+        });
+
+        editModal.addEventListener('click', function(e) {
+            if (e.target === editModal) closeEditModal();
+        });
+
+        importModal.addEventListener('click', function(e) {
+            if (e.target === importModal) closeImportModal();
+        });
+
+        // Tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (addModal.classList.contains('show')) closeAddModal();
+                if (editModal.classList.contains('show')) closeEditModal();
+                if (importModal.classList.contains('show')) closeImportModal();
+            }
+        });
+
+        // Eventos do áudio
+        globalAudio.addEventListener('ended', function() {
+            currentPlaying = null;
+            renderRadios();
+        });
+
+        globalAudio.addEventListener('error', function() {
+            if (currentPlaying !== null) {
+                alert('Erro ao reproduzir a rádio. O stream pode não estar disponível.');
+                currentPlaying = null;
+                renderRadios();
+            }
+        });
+
+        // Carregar rádios ao iniciar
+        loadRadios();
+
+        // Tornar funções globais
+        window.openAddModal = openAddModal;
+        window.closeAddModal = closeAddModal;
+        window.addRadio = addRadio;
+        window.openEditModal = openEditModal;
+        window.closeEditModal = closeEditModal;
+        window.saveEditRadio = saveEditRadio;
+        window.deleteRadio = deleteRadio;
+        window.exportRadios = exportRadios;
+        window.openImportModal = openImportModal;
+        window.closeImportModal = closeImportModal;
+        window.importFromFile = importFromFile;
+        window.clearAllRadios = clearAllRadios;
+        window.toggleRadio = toggleRadio;
+    </script>
+</body>
+</html>
