@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Rádios de Portugal</title>
     <style>
         * {
@@ -11,218 +11,364 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg: #060606;
+            --bg-soft: #101010;
+            --bg-card: #141414;
+            --bg-card-2: #1a1a1a;
+            --line: #2a2a2a;
+            --line-strong: #3a3a3a;
+            --text: #f4f4f4;
+            --muted: #aaaaaa;
+            --accent: #ff9900;
+            --accent-2: #ffb84d;
+            --danger: #ff5c5c;
+            --success: #3dff75;
+            --shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background: #000000;
-            color: #ffffff;
+            font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+            background: radial-gradient(circle at top, rgba(255,153,0,0.06), transparent 30%),
+                        linear-gradient(180deg, #050505 0%, #0a0a0a 100%);
+            color: var(--text);
             min-height: 100vh;
         }
 
-        /* HEADER FIXO - sempre visível */
         .header {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: #000000;
+            background: rgba(6,6,6,0.94);
+            backdrop-filter: blur(12px);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 20px;
-            border-bottom: 1px solid #333;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--line);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
             width: 100%;
-            max-width: 800px;
+            max-width: 880px;
             margin: 0 auto;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        /* container ajustado */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px 20px 20px;
-            position: relative;
+        .header-left {
+            display: flex;
+            flex-direction: column;
         }
 
         h1 {
             font-size: 18px;
-            font-weight: 500;
+            font-weight: 700;
             letter-spacing: 0.5px;
-            color: #ff9900;
+            color: var(--accent);
             margin: 0;
         }
 
         .header-buttons {
             display: flex;
             gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .header-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
-            font-size: 14px;
-            background: #1a1a1a;
-            color: #ff9900;
-            border: 1px solid #333;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            background: linear-gradient(180deg, #181818, #0f0f0f);
+            color: var(--accent);
         }
 
         .header-btn:hover {
-            background: #ff9900;
-            color: #000000;
-            transform: scale(1.1);
+            transform: translateY(-1px);
+            border-color: var(--accent);
+            background: linear-gradient(180deg, #242424, #141414);
         }
 
-        /* Botão limpar com cor diferente */
+        .compact-toggle-btn, .sleep-btn, .sync-btn {
+            width: auto;
+            padding: 0 12px;
+            gap: 6px;
+            font-size: 14px;
+        }
+
+        .compact-toggle-btn {
+            background: linear-gradient(180deg, #1a2a1a, #0f1a0f);
+            color: var(--success);
+            border-color: rgba(61,255,117,0.3);
+        }
+
+        .sleep-btn {
+            background: linear-gradient(180deg, #2a1a2a, #1a0f1a);
+            color: #c084fc;
+            border-color: rgba(192,132,252,0.3);
+        }
+
+        .sync-btn {
+            background: linear-gradient(180deg, #1a2a3a, #0f1a2a);
+            color: #60a5fa;
+            border-color: rgba(96,165,250,0.3);
+        }
+
+        .sleep-active {
+            background: linear-gradient(180deg, #7e22ce, #5b0e91);
+            color: white;
+            border-color: #c084fc;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         .clear-btn {
-            background: #1a1a1a;
-            color: #ff5555;
-            border: 1px solid #ff5555;
+            color: var(--danger);
+            border-color: rgba(255,92,92,0.35);
         }
 
         .clear-btn:hover {
-            background: #ff5555;
-            color: #000000;
-            border-color: #ff5555;
+            color: #fff;
+            background: linear-gradient(180deg, #4a1515, #2e0c0c);
+            border-color: var(--danger);
         }
 
         .radio-list {
             list-style: none;
-            margin-top: 10px;
+            margin-top: 6px;
         }
 
         .radio-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 15px;
+            gap: 10px;
+            padding: 10px 14px;
             margin-bottom: 8px;
-            background: #111111;
-            border: 1px solid #333333;
-            border-radius: 5px;
-            transition: all 0.3s;
+            background: linear-gradient(180deg, var(--bg-card), var(--bg-card-2));
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow);
         }
 
         .radio-item:hover {
-            background: #1a1a1a;
-            border-color: #666666;
+            border-color: #4a4a4a;
+            background: linear-gradient(180deg, #1a1a1a, #1e1e1e);
         }
 
         .radio-item.playing {
-            background: #1a3300;
-            border-color: #00ff00;
+            background: linear-gradient(180deg, #142214, #0f1a0f);
+            border-color: rgba(61,255,117,0.6);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3), 0 0 0 1px rgba(61,255,117,0.15) inset;
+        }
+
+        .compact-mode .radio-link {
+            display: none;
+        }
+
+        .compact-mode .radio-item {
+            padding: 8px 12px;
+        }
+
+        .compact-mode .radio-name {
+            font-size: 14px;
+        }
+
+        .compact-mode .radio-name-row {
+            margin-bottom: 0;
+        }
+
+        .radio-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .fav-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #5a4a1a;
+            background: #17130a;
+            color: #8a7a3a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .fav-btn:hover {
+            border-color: #d8a73a;
+            color: #f5c04f;
+            transform: scale(1.02);
+        }
+
+        .fav-btn.active {
+            background: linear-gradient(180deg, #3a2a08, #241a05);
+            color: #ffd966;
+            border-color: #ffcc4d;
         }
 
         .radio-info {
             flex: 1;
+            min-width: 0;
+        }
+
+        .radio-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
         }
 
         .radio-name {
             font-size: 15px;
-            font-weight: bold;
-            color: #ffffff;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .favorite-badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 20px;
+            background: rgba(255,204,77,0.12);
+            color: #ffd15c;
+            border: 1px solid rgba(255,204,77,0.4);
+            text-transform: uppercase;
+        }
+
+        .playing-badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 20px;
+            background: rgba(61,255,117,0.12);
+            color: var(--success);
+            border: 1px solid rgba(61,255,117,0.5);
+            text-transform: uppercase;
         }
 
         .radio-link {
             font-size: 11px;
-            color: #888888;
-            margin-top: 3px;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
             word-break: break-all;
+            letter-spacing: 0.2px;
+            opacity: 0.85;
+        }
+
+        .radio-link:hover {
+            opacity: 1;
+            text-decoration: none;
         }
 
         .radio-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
+            flex-shrink: 0;
         }
 
+        /* Botão play sem fundo - apenas ícone */
         .play-btn {
-            padding: 4px 10px;
-            border: none;
-            border-radius: 3px;
-            font-weight: bold;
+            width: 38px;
+            height: 38px;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 11px;
-            transition: all 0.3s;
-            min-width: 45px;
-            text-transform: uppercase;
-            background: #00ff00;
-            color: #000000;
-        }
-
-        .play-btn:hover {
-            background: #00cc00;
-        }
-
-        .play-btn.playing {
-            background: #ff3333;
-        }
-
-        .play-btn.playing:hover {
-            background: #cc0000;
-        }
-
-        /* Botões de editar e apagar */
-        .edit-btn, .delete-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 3px;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px;
+            background: transparent;
+            color: var(--success);
+        }
+
+        .play-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--success);
+            background: rgba(61,255,117,0.1);
+        }
+
+        .play-btn.playing {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .play-btn.playing:hover {
+            background: rgba(255,92,92,0.1);
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            border: 1px solid var(--line-strong);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #171717;
         }
 
         .edit-btn {
-            background: #2c3e50;
-            color: #ff9900;
-            border: 1px solid #ff9900;
+            color: var(--accent);
+            border-color: rgba(255,153,0,0.4);
         }
 
         .edit-btn:hover {
-            background: #ff9900;
-            color: #000000;
-            transform: scale(1.05);
+            color: #000;
+            background: var(--accent);
+            border-color: var(--accent);
         }
 
         .delete-btn {
-            background: #2c2c2c;
-            color: #ff5555;
-            border: 1px solid #ff5555;
+            color: var(--danger);
+            border-color: rgba(255,92,92,0.4);
         }
 
         .delete-btn:hover {
-            background: #ff5555;
-            color: #000000;
-            transform: scale(1.05);
+            color: #000;
+            background: var(--danger);
+            border-color: var(--danger);
         }
 
-        /* File input hidden */
         .file-input {
             display: none;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .modal.show {
@@ -230,682 +376,598 @@
         }
 
         .modal-content {
-            background: #000000;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 450px;
-            border: 2px solid #ff9900;
+            background: linear-gradient(180deg, #0c0c0c, #141414);
+            padding: 24px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 460px;
+            border: 1px solid rgba(255,153,0,0.4);
+            box-shadow: 0 30px 50px rgba(0,0,0,0.6);
         }
 
         .modal-content h2 {
-            color: #ff9900;
-            margin-bottom: 20px;
+            color: var(--accent);
+            margin-bottom: 18px;
             font-size: 20px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            color: #ffffff;
-            margin-bottom: 5px;
-            font-size: 14px;
+            color: #fff;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 12px;
-            background: #1a1a1a;
-            border: 1px solid #ff9900;
-            color: #ffffff;
-            border-radius: 5px;
+            padding: 12px 14px;
+            background: #1b1b1b;
+            border: 1px solid rgba(255,153,0,0.4);
+            color: #fff;
+            border-radius: 12px;
             font-size: 14px;
+            transition: all 0.2s ease;
         }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: #ffaa22;
-            background: #222222;
-        }
-
-        .form-group input::placeholder {
-            color: #666666;
-        }
-
-        .file-info {
-            background: #1a1a1a;
-            border: 2px dashed #ff9900;
-            border-radius: 5px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 20px;
+        .form-group select {
             cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .file-info:hover {
-            background: #222222;
-            border-color: #ffaa22;
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #222;
+            box-shadow: 0 0 0 2px rgba(255,153,0,0.15);
         }
 
-        .file-info .icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            display: block;
-            color: #ff9900;
-        }
-
-        .file-info .text {
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .file-info .filename {
-            color: #ff9900;
-            font-weight: bold;
-            margin-top: 10px;
-            word-break: break-all;
-        }
-
-        .warning-text {
-            color: #ff9900;
+        .gist-preview {
+            background: #1a1a2e;
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 12px;
             font-size: 12px;
-            margin-top: 15px;
+            color: #60a5fa;
             text-align: center;
+        }
+
+        .timer-info {
+            background: #1a1a2e;
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+            margin-top: 12px;
+            border: 1px solid rgba(192,132,252,0.3);
+        }
+
+        .timer-countdown {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: monospace;
+            color: #c084fc;
+        }
+
+        .cancel-timer-btn {
+            margin-top: 10px;
+            background: #2d1b3d;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: #c084fc;
+            cursor: pointer;
+            font-size: 12px;
         }
 
         .modal-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-top: 20px;
         }
 
-        .save-btn, .confirm-btn, .cancel-btn, .danger-btn {
+        .save-btn, .confirm-btn, .cancel-btn {
             flex: 1;
-            padding: 12px;
+            padding: 11px;
             border: none;
-            border-radius: 5px;
-            font-weight: bold;
+            border-radius: 14px;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 13px;
+            transition: all 0.2s ease;
         }
 
         .save-btn {
-            background: #ff9900;
-            color: #000000;
+            background: linear-gradient(180deg, var(--accent), var(--accent-2));
+            color: #000;
         }
 
         .save-btn:hover {
-            background: #ffaa22;
+            transform: translateY(-1px);
         }
 
         .confirm-btn {
-            background: #9b59b6;
-            color: #ffffff;
+            background: linear-gradient(180deg, #9b59b6, #7e3d9f);
+            color: #fff;
         }
 
         .confirm-btn:hover:not(:disabled) {
-            background: #8e44ad;
+            transform: translateY(-1px);
         }
 
         .confirm-btn:disabled {
-            background: #444444;
+            background: #444;
             cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .danger-btn {
-            background: #ff5555;
-            color: #000000;
-        }
-
-        .danger-btn:hover {
-            background: #ff3333;
+            opacity: 0.6;
         }
 
         .cancel-btn {
-            background: #333333;
-            color: #ffffff;
-            border: 1px solid #666666;
+            background: #222;
+            color: #fff;
+            border: 1px solid #3a3a3a;
         }
 
         .cancel-btn:hover {
-            background: #444444;
+            background: #2e2e2e;
         }
 
         .footer {
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
-            color: #666666;
-            font-size: 12px;
+            color: #6a6a6a;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 36px 20px;
+            color: #9a9a9a;
+            background: linear-gradient(180deg, #111, #151515);
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            font-size: 14px;
         }
 
         audio {
             display: none;
         }
 
-        /* Pequeno ajuste */
-        .radio-list::before {
-            content: '';
-            display: block;
-            height: 5px;
+        @media (max-width: 700px) {
+            .header {
+                padding: 10px 14px;
+            }
+            .container {
+                padding: 10px 14px 20px;
+            }
+            .radio-item {
+                padding: 8px 12px;
+                gap: 8px;
+            }
+            .radio-actions {
+                gap: 5px;
+            }
+            .play-btn, .icon-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+            .radio-name {
+                font-size: 14px;
+            }
+            .header-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+            .compact-toggle-btn, .sleep-btn, .sync-btn {
+                width: auto;
+                padding: 0 8px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER FIXO - com botão limpar -->
     <div class="header">
-        <h1>RÁDIOS DE PORTUGAL</h1>
+        <div class="header-left">
+            <h1>📻 RÁDIOS DE PORTUGAL</h1>
+        </div>
         <div class="header-buttons">
-            <button class="header-btn clear-btn" onclick="clearAllRadios()" title="Limpar todas as estações">🗑️</button>
-            <button class="header-btn export-btn" onclick="exportRadios()" title="Exportar lista para JSON">⬇️</button>
-            <button class="header-btn import-btn" onclick="openImportModal()" title="Importar lista de JSON">📂</button>
-            <button class="header-btn add-btn" onclick="openAddModal()" title="Adicionar nova estação">+</button>
+            <button class="header-btn compact-toggle-btn" id="compactToggleBtn" onclick="toggleCompactMode()">📐</button>
+            <button class="header-btn sleep-btn" id="sleepTimerBtn" onclick="openSleepModal()">⏰</button>
+            <button class="header-btn sync-btn" id="syncGistBtn" onclick="openGistModal()">☁️</button>
+            <button class="header-btn clear-btn" onclick="clearAllRadios()" title="Limpar todas">🗑️</button>
+            <button class="header-btn export-btn" onclick="exportRadios()" title="Exportar JSON">⬇️</button>
+            <button class="header-btn import-btn" onclick="openImportModal()" title="Importar JSON">📂</button>
+            <button class="header-btn add-btn" onclick="openAddModal()" title="Adicionar rádio">+</button>
         </div>
     </div>
 
-    <div class="container">
-        <ul class="radio-list" id="radioList">
-            <!-- As rádios serão inseridas aqui via JavaScript -->
-        </ul>
-
+    <div class="container" id="appContainer">
+        <ul class="radio-list" id="radioList"></ul>
         <div class="footer">
-            <p>🗑️ limpar | + adicionar | ⬇️ exportar | 📂 importar | ✏️ editar | 🗑️ apagar</p>
+            <p>⭐ favorito | ▶️ play/stop | ✏️ editar | 🗑️ apagar | 📐 compacto | ⏰ timer | ☁️ sync</p>
         </div>
     </div>
 
-    <!-- Modal para adicionar rádio -->
+    <!-- Modal Gist Sync -->
+    <div class="modal" id="gistModal">
+        <div class="modal-content">
+            <h2>☁️ GIST</h2>
+            <div class="form-group">
+                <label>TOKEN</label>
+                <input type="password" id="gistTokenInput" placeholder="GitHub token (para guardar)">
+                <div class="gist-preview">🔑 Token necessário para escrever. Para ler, pode deixar vazio.</div>
+            </div>
+            <div class="form-group">
+                <label>GIST ID</label>
+                <input type="text" id="gistIdInput" placeholder="ex: abc123def456">
+            </div>
+            <div class="form-group">
+                <label>NOME DO FICHEIRO</label>
+                <input type="text" id="gistFilenameInput" placeholder="radios.json" value="radios.json">
+            </div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="loadFromGist()">📥 CARREGAR</button>
+                <button class="confirm-btn" onclick="saveToGist()">📤 GUARDAR</button>
+                <button class="cancel-btn" onclick="closeGistModal()">CANC</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sleep Timer -->
+    <div class="modal" id="sleepModal">
+        <div class="modal-content">
+            <h2>⏰ TIMER</h2>
+            <div class="form-group">
+                <label>Parar após:</label>
+                <select id="sleepMinutesSelect">
+                    <option value="5">5 min</option>
+                    <option value="10">10 min</option>
+                    <option value="15">15 min</option>
+                    <option value="30">30 min</option>
+                    <option value="45">45 min</option>
+                    <option value="60">60 min</option>
+                    <option value="90">90 min</option>
+                    <option value="120">120 min</option>
+                </select>
+            </div>
+            <div id="sleepTimerStatus" class="timer-info" style="display: none;"></div>
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="startSleepTimer()">INICIAR</button>
+                <button class="cancel-btn" onclick="closeSleepModal()">CANC</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="addModal">
         <div class="modal-content">
-            <h2>➕ ADICIONAR ESTAÇÃO</h2>
+            <h2>➕ NOVA</h2>
             <div class="form-group">
-                <label>NOME DA RÁDIO</label>
+                <label>NOME</label>
                 <input type="text" id="radioName" placeholder="Ex: Rádio Comercial">
             </div>
             <div class="form-group">
-                <label>LINK DO STREAM</label>
-                <input type="url" id="radioUrl" placeholder="https://exemplo.com/stream.mp3">
+                <label>STREAM</label>
+                <input type="url" id="radioUrl" placeholder="https://...">
             </div>
             <div class="modal-buttons">
-                <button class="save-btn" onclick="addRadio()">GUARDAR</button>
-                <button class="cancel-btn" onclick="closeAddModal()">CANCELAR</button>
+                <button class="save-btn" onclick="addRadio()">SALVAR</button>
+                <button class="cancel-btn" onclick="closeAddModal()">CANC</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal para editar rádio -->
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <h2>✏️ EDITAR ESTAÇÃO</h2>
+            <h2>✏️ EDITAR</h2>
             <div class="form-group">
-                <label>NOME DA RÁDIO</label>
-                <input type="text" id="editRadioName" placeholder="Ex: Rádio Comercial">
+                <label>NOME</label>
+                <input type="text" id="editRadioName">
             </div>
             <div class="form-group">
-                <label>LINK DO STREAM</label>
-                <input type="url" id="editRadioUrl" placeholder="https://exemplo.com/stream.mp3">
+                <label>STREAM</label>
+                <input type="url" id="editRadioUrl">
             </div>
             <div class="modal-buttons">
-                <button class="save-btn" onclick="saveEditRadio()">ATUALIZAR</button>
-                <button class="cancel-btn" onclick="closeEditModal()">CANCELAR</button>
+                <button class="save-btn" onclick="saveEditRadio()">ATUAL</button>
+                <button class="cancel-btn" onclick="closeEditModal()">CANC</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal para importar ficheiro -->
     <div class="modal" id="importModal">
         <div class="modal-content">
-            <h2>📂 IMPORTAR FICHEIRO</h2>
-            
+            <h2>📂 IMPORTAR</h2>
             <div class="file-info" onclick="document.getElementById('fileInput').click()">
-                <span class="icon">📂</span>
-                <span class="text">Clique para selecionar um ficheiro JSON</span>
+                <span class="icon">📄</span>
+                <span class="text">Selecionar JSON</span>
                 <div class="filename" id="selectedFilename"></div>
             </div>
-
             <input type="file" id="fileInput" class="file-input" accept=".json,application/json">
-
-            <p class="warning-text">⚠️ Atenção: A importação irá substituir TODAS as estações atuais!</p>
-
+            <p class="warning-text">⚠️ Substitui lista atual.</p>
             <div class="modal-buttons">
-                <button class="confirm-btn" id="importConfirmBtn" onclick="importFromFile()" disabled>IMPORTAR</button>
-                <button class="cancel-btn" onclick="closeImportModal()">CANCELAR</button>
+                <button class="confirm-btn" id="importConfirmBtn" onclick="importFromFile()" disabled>IMPORT</button>
+                <button class="cancel-btn" onclick="closeImportModal()">CANC</button>
             </div>
         </div>
     </div>
 
-    <!-- Elemento de áudio global -->
-    <audio id="globalAudio" controls style="display: none;"></audio>
+    <audio id="globalAudio" preload="none"></audio>
 
     <script>
-        // Chave para o localStorage
         const STORAGE_KEY = 'radiosPortugal';
-
-        // Lista inicial de rádios (só é usada na primeira vez que a app abre)
+        const COMPACT_MODE_KEY = 'compactMode';
+        const SLEEP_TIMER_KEY = 'sleepTimerEnd';
+        const GIST_ID_KEY = 'gistId';
+        const GIST_FILENAME_KEY = 'gistFilename';
+        
         const defaultRadios = [
-            { nome: "TSF", stream: "https://directo.tsf.pt/tsfdirecto.mp3" },
-            { nome: "Antena 3", stream: "https://radiocast.rtp.pt/antena380a.mp3" },
-            { nome: "RFM", stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC" }
+            { id: generateId(), nome: "TSF", stream: "https://directo.tsf.pt/tsfdirecto.mp3", favorito: true },
+            { id: generateId(), nome: "Antena 3", stream: "https://radiocast.rtp.pt/antena380a.mp3", favorito: false },
+            { id: generateId(), nome: "RFM", stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/RFM_SC", favorito: false },
+            { id: generateId(), nome: "M80", stream: "https://stream-icy.bauermedia.pt/m80.mp3", favorito: false }
         ];
 
-        // Carregar rádios do localStorage
         let radios = [];
+        let currentPlaying = null;
+        let editIndex = null;
+        let importedBuffer = null;
+        let compactMode = false;
+        let sleepTimerInterval = null;
+        let sleepTimerEndTime = null;
 
-        function loadRadios() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            
-            // Verificar se existe algo guardado
-            if (saved !== null) {
-                try {
-                    // Tenta fazer parse do que está guardado
-                    const parsed = JSON.parse(saved);
-                    
-                    // Verifica se é um array (mesmo que vazio)
-                    if (Array.isArray(parsed)) {
-                        radios = parsed;
-                    } else {
-                        // Se não for array, usa defaults
-                        radios = [...defaultRadios];
-                    }
-                } catch (e) {
-                    // Erro no parse, usar defaults
-                    radios = [...defaultRadios];
-                }
-            } else {
-                // Primeira vez que abre a app - usar defaults
-                radios = [...defaultRadios];
-            }
-            
-            // Guardar no localStorage para garantir consistência
-            saveRadios();
-            
-            // Renderizar
-            renderRadios();
+        const radioListEl = document.getElementById('radioList');
+        const addModal = document.getElementById('addModal');
+        const editModal = document.getElementById('editModal');
+        const importModal = document.getElementById('importModal');
+        const sleepModal = document.getElementById('sleepModal');
+        const gistModal = document.getElementById('gistModal');
+        const globalAudio = document.getElementById('globalAudio');
+        const importConfirmBtn = document.getElementById('importConfirmBtn');
+        const selectedFilenameSpan = document.getElementById('selectedFilename');
+        const fileInputEl = document.getElementById('fileInput');
+        const appContainer = document.getElementById('appContainer');
+
+        function generateId() {
+            return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
         }
 
-        // Guardar rádios no localStorage
+        function normalizeRadio(radio) {
+            if (!radio || typeof radio !== 'object') return null;
+            let nome = radio.nome ? String(radio.nome).trim() : '';
+            let stream = radio.stream ? String(radio.stream).trim() : '';
+            if (!nome || !stream) return null;
+            if (!/^https?:\/\//i.test(stream)) return null;
+            return {
+                id: radio.id || generateId(),
+                nome: nome,
+                stream: stream,
+                favorito: Boolean(radio.favorito)
+            };
+        }
+
         function saveRadios() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(radios));
         }
 
-        const radioList = document.getElementById('radioList');
-        const addModal = document.getElementById('addModal');
-        const editModal = document.getElementById('editModal');
-        const importModal = document.getElementById('importModal');
-        const globalAudio = document.getElementById('globalAudio');
-        const importConfirmBtn = document.getElementById('importConfirmBtn');
-        const selectedFilename = document.getElementById('selectedFilename');
-        const fileInput = document.getElementById('fileInput');
-        
-        let currentPlaying = null;
-        let editIndex = null; // Índice da rádio sendo editada
+        function sortFavsToTop() {
+            const playingId = (currentPlaying !== null && radios[currentPlaying]) ? radios[currentPlaying].id : null;
+            const favs = radios.filter(r => r.favorito);
+            const norm = radios.filter(r => !r.favorito);
+            radios = [...favs, ...norm];
+            if (playingId) currentPlaying = radios.findIndex(r => r.id === playingId);
+            if (currentPlaying !== -1 && !radios[currentPlaying]) currentPlaying = null;
+        }
 
-        // Função para renderizar a lista de rádios
-        function renderRadios() {
-            if (!radios || radios.length === 0) {
-                radioList.innerHTML = '<li style="text-align: center; padding: 30px; color: #666;">Nenhuma rádio disponível. Adicione uma nova.</li>';
-                return;
+        function loadCompactMode() {
+            const saved = localStorage.getItem(COMPACT_MODE_KEY);
+            compactMode = saved === 'true';
+            applyCompactMode();
+        }
+
+        function applyCompactMode() {
+            if (compactMode) {
+                appContainer.classList.add('compact-mode');
+                document.getElementById('compactToggleBtn').innerHTML = '📖';
+            } else {
+                appContainer.classList.remove('compact-mode');
+                document.getElementById('compactToggleBtn').innerHTML = '📐';
             }
-            
-            radioList.innerHTML = '';
-            radios.forEach((radio, index) => {
-                if (!radio || !radio.nome || !radio.stream) return;
-                
+            localStorage.setItem(COMPACT_MODE_KEY, compactMode);
+        }
+
+        function toggleCompactMode() {
+            compactMode = !compactMode;
+            applyCompactMode();
+        }
+
+        function stopSleepTimer() {
+            if (sleepTimerInterval) { clearInterval(sleepTimerInterval); sleepTimerInterval = null; }
+            localStorage.removeItem(SLEEP_TIMER_KEY);
+            sleepTimerEndTime = null;
+            const btn = document.getElementById('sleepTimerBtn');
+            btn.classList.remove('sleep-active');
+            btn.innerHTML = '⏰';
+        }
+
+        function updateSleepButtonUI(active) {
+            const btn = document.getElementById('sleepTimerBtn');
+            if (active) { btn.classList.add('sleep-active'); btn.innerHTML = '⏰'; }
+            else { btn.classList.remove('sleep-active'); btn.innerHTML = '⏰'; }
+        }
+
+        function startSleepTimerFromMinutes(minutes) {
+            stopSleepTimer();
+            const endTime = Date.now() + (minutes * 60 * 1000);
+            sleepTimerEndTime = endTime;
+            localStorage.setItem(SLEEP_TIMER_KEY, endTime.toString());
+            sleepTimerInterval = setInterval(() => {
+                if (!sleepTimerEndTime) { stopSleepTimer(); return; }
+                const remaining = sleepTimerEndTime - Date.now();
+                if (remaining <= 0) {
+                    if (currentPlaying !== null) { globalAudio.pause(); currentPlaying = null; renderRadios(); }
+                    stopSleepTimer();
+                    alert('⏰ Timer: reprodução interrompida.');
+                } else {
+                    updateSleepButtonUI(true);
+                }
+            }, 1000);
+            updateSleepButtonUI(true);
+        }
+
+        function checkSavedSleepTimer() {
+            const savedEnd = localStorage.getItem(SLEEP_TIMER_KEY);
+            if (savedEnd) { const end = parseInt(savedEnd, 10); if (!isNaN(end) && end > Date.now()) { sleepTimerEndTime = end; const remaining = end - Date.now(); const minutesRemaining = Math.ceil(remaining / 60000); startSleepTimerFromMinutes(minutesRemaining); } else localStorage.removeItem(SLEEP_TIMER_KEY); }
+        }
+
+        function openSleepModal() { sleepModal.classList.add('show'); const statusDiv = document.getElementById('sleepTimerStatus'); if (sleepTimerEndTime && sleepTimerEndTime > Date.now()) { const remaining = sleepTimerEndTime - Date.now(); const mins = Math.floor(remaining / 60000); const secs = Math.floor((remaining % 60000) / 1000); statusDiv.style.display = 'block'; statusDiv.innerHTML = `<div>⏳ Ativo</div><div class="timer-countdown">${mins}:${secs.toString().padStart(2,'0')}</div><button class="cancel-timer-btn" onclick="cancelSleepTimerAndClose()">Cancelar</button>`; } else statusDiv.style.display = 'none'; }
+        function cancelSleepTimerAndClose() { stopSleepTimer(); closeSleepModal(); renderRadios(); }
+        function startSleepTimer() { const select = document.getElementById('sleepMinutesSelect'); const minutes = parseInt(select.value, 10); if (isNaN(minutes) || minutes <= 0) return; startSleepTimerFromMinutes(minutes); closeSleepModal(); }
+        function closeSleepModal() { sleepModal.classList.remove('show'); }
+
+        function openGistModal() {
+            const savedGist = localStorage.getItem(GIST_ID_KEY);
+            const savedFilename = localStorage.getItem(GIST_FILENAME_KEY);
+            if (savedGist) document.getElementById('gistIdInput').value = savedGist;
+            if (savedFilename) document.getElementById('gistFilenameInput').value = savedFilename;
+            else document.getElementById('gistFilenameInput').value = 'radios.json';
+            document.getElementById('gistTokenInput').value = '';
+            gistModal.classList.add('show');
+        }
+        function closeGistModal() { gistModal.classList.remove('show'); }
+
+        async function loadFromGist() {
+            const gistId = document.getElementById('gistIdInput').value.trim();
+            const filename = document.getElementById('gistFilenameInput').value.trim() || 'radios.json';
+            if (!gistId) { alert('Gist ID necessário.'); return; }
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`);
+                if (!response.ok) throw new Error('Gist não encontrado');
+                const gist = await response.json();
+                const file = gist.files[filename];
+                if (!file) throw new Error(`Ficheiro "${filename}" não encontrado no Gist`);
+                const data = JSON.parse(file.content);
+                if (!Array.isArray(data)) throw new Error('Formato inválido');
+                const cleaned = data.map(normalizeRadio).filter(Boolean);
+                if (!cleaned.length) throw new Error('Nenhuma rádio válida');
+                if (currentPlaying !== null) { globalAudio.pause(); currentPlaying = null; }
+                radios = cleaned;
+                sortFavsToTop();
+                saveRadios();
+                localStorage.setItem(GIST_ID_KEY, gistId);
+                localStorage.setItem(GIST_FILENAME_KEY, filename);
+                renderRadios();
+                alert('✅ Sincronizado!');
+                closeGistModal();
+            } catch (err) { alert('Erro: ' + err.message); }
+        }
+
+        async function saveToGist() {
+            const gistId = document.getElementById('gistIdInput').value.trim();
+            const token = document.getElementById('gistTokenInput').value.trim();
+            const filename = document.getElementById('gistFilenameInput').value.trim() || 'radios.json';
+            if (!gistId) { alert('Gist ID necessário.'); return; }
+            if (!token) { alert('Token necessário para escrever.'); return; }
+            const content = JSON.stringify(radios, null, 2);
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ files: { [filename]: { content: content } } })
+                });
+                if (!response.ok) throw new Error('Erro ao guardar');
+                localStorage.setItem(GIST_ID_KEY, gistId);
+                localStorage.setItem(GIST_FILENAME_KEY, filename);
+                alert('✅ Guardado no Gist!');
+                closeGistModal();
+            } catch (err) { alert('Erro: ' + err.message); }
+        }
+
+        function loadRadios() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved !== null) {
+                try { const parsed = JSON.parse(saved); if (Array.isArray(parsed)) { const cleaned = parsed.map(normalizeRadio).filter(Boolean); if (cleaned.length) radios = cleaned; else radios = [...defaultRadios]; } else radios = [...defaultRadios]; } catch(e) { radios = [...defaultRadios]; }
+            } else { radios = [...defaultRadios]; }
+            if (radios.length === 0) radios = [...defaultRadios];
+            sortFavsToTop();
+            saveRadios();
+            renderRadios();
+        }
+
+        function renderRadios() {
+            if (!radios.length) { radioListEl.innerHTML = `<li class="empty-state">📡 Nenhuma estação. Clique "+" para adicionar.</li>`; return; }
+            radioListEl.innerHTML = '';
+            radios.forEach((radio, idx) => {
                 const li = document.createElement('li');
                 li.className = 'radio-item';
-                if (currentPlaying === index) {
-                    li.classList.add('playing');
-                }
-                
-                const shortLink = radio.stream.length > 50 ? radio.stream.substring(0, 47) + '...' : radio.stream;
-                
+                if (currentPlaying === idx) li.classList.add('playing');
+                const shortLink = radio.stream.length > 58 ? radio.stream.slice(0, 55) + '...' : radio.stream;
                 li.innerHTML = `
-                    <div class="radio-info">
-                        <div class="radio-name">${escapeHtml(radio.nome)}</div>
-                        <div class="radio-link">${escapeHtml(shortLink)}</div>
+                    <div class="radio-main">
+                        <button class="fav-btn ${radio.favorito ? 'active' : ''}" onclick="toggleFavorite(${idx})">${radio.favorito ? '★' : '☆'}</button>
+                        <div class="radio-info">
+                            <div class="radio-name-row">
+                                <div class="radio-name">${escapeHtml(radio.nome)}</div>
+                                ${radio.favorito ? '<span class="favorite-badge">FAV</span>' : ''}
+                                ${currentPlaying === idx ? '<span class="playing-badge">▶</span>' : ''}
+                            </div>
+                            <div class="radio-link">${escapeHtml(shortLink)}</div>
+                        </div>
                     </div>
                     <div class="radio-actions">
-                        <button class="play-btn ${currentPlaying === index ? 'playing' : ''}" onclick="toggleRadio(${index})">
-                            ${currentPlaying === index ? 'STOP' : 'PLAY'}
-                        </button>
-                        <button class="edit-btn" onclick="openEditModal(${index})" title="Editar">✏️</button>
-                        <button class="delete-btn" onclick="deleteRadio(${index})" title="Apagar">🗑️</button>
+                        <button class="play-btn ${currentPlaying === idx ? 'playing' : ''}" onclick="toggleRadio(${idx})">${currentPlaying === idx ? '⏹️' : '▶️'}</button>
+                        <button class="icon-btn edit-btn" onclick="openEditModal(${idx})">✏️</button>
+                        <button class="icon-btn delete-btn" onclick="deleteRadio(${idx})">🗑️</button>
                     </div>
                 `;
-                
-                radioList.appendChild(li);
-            });
-            
-            saveRadios();
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text).replace(/[&<>"]/g, function(match) {
-                if (match === '&') return '&amp;';
-                if (match === '<') return '&lt;';
-                if (match === '>') return '&gt;';
-                if (match === '"') return '&quot;';
-                return match;
+                radioListEl.appendChild(li);
             });
         }
 
-        function toggleRadio(index) {
-            if (!radios[index]) return;
-            
-            const radio = radios[index];
-            
-            if (currentPlaying === index) {
-                globalAudio.pause();
-                currentPlaying = null;
-                renderRadios();
-            } else {
-                if (currentPlaying !== null) {
-                    globalAudio.pause();
-                }
-                
-                currentPlaying = index;
-                renderRadios();
-                
-                globalAudio.src = radio.stream;
-                globalAudio.play()
-                    .catch(error => {
-                        console.error('Erro ao reproduzir:', error);
-                        alert('Não foi possível reproduzir esta rádio. O link pode não estar disponível.');
-                        currentPlaying = null;
-                        renderRadios();
-                    });
-            }
-        }
+        function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+        function toggleFavorite(index) { if (!radios[index]) return; radios[index].favorito = !radios[index].favorito; sortFavsToTop(); saveRadios(); renderRadios(); }
+        function toggleRadio(index) { if (!radios[index]) return; const radio = radios[index]; if (currentPlaying === index) { globalAudio.pause(); currentPlaying = null; renderRadios(); } else { if (currentPlaying !== null) globalAudio.pause(); currentPlaying = index; renderRadios(); globalAudio.src = radio.stream; globalAudio.load(); globalAudio.play().catch(err => { alert(`Erro: ${radio.nome}`); currentPlaying = null; renderRadios(); }); } }
+        function deleteRadio(index) { if (!radios[index]) return; if (confirm(`Apagar "${radios[index].nome}"?`)) { if (currentPlaying === index) { globalAudio.pause(); currentPlaying = null; } radios.splice(index, 1); if (currentPlaying !== null && currentPlaying > index) currentPlaying--; else if (currentPlaying !== null && currentPlaying >= radios.length) currentPlaying = null; saveRadios(); renderRadios(); } }
+        function openAddModal() { addModal.classList.add('show'); document.getElementById('radioName').value = ''; document.getElementById('radioUrl').value = ''; }
+        function closeAddModal() { addModal.classList.remove('show'); }
+        function addRadio() { const nome = document.getElementById('radioName').value.trim(); const stream = document.getElementById('radioUrl').value.trim(); if (!nome || !stream) { alert('Preencha ambos.'); return; } if (!/^https?:\/\//i.test(stream)) { alert('URL inválido'); return; } radios.push({ id: generateId(), nome, stream, favorito: false }); sortFavsToTop(); saveRadios(); renderRadios(); closeAddModal(); }
+        function openEditModal(index) { if(!radios[index]) return; editIndex = index; document.getElementById('editRadioName').value = radios[index].nome; document.getElementById('editRadioUrl').value = radios[index].stream; editModal.classList.add('show'); }
+        function closeEditModal() { editModal.classList.remove('show'); editIndex = null; }
+        function saveEditRadio() { if (editIndex === null || !radios[editIndex]) { closeEditModal(); return; } const nome = document.getElementById('editRadioName').value.trim(); const stream = document.getElementById('editRadioUrl').value.trim(); if (!nome || !stream) { alert('Preencha ambos.'); return; } if (!/^https?:\/\//i.test(stream)) { alert('Stream inválido'); return; } const wasPlaying = (currentPlaying === editIndex); radios[editIndex].nome = nome; radios[editIndex].stream = stream; if (wasPlaying) { globalAudio.pause(); globalAudio.src = stream; globalAudio.load(); globalAudio.play().catch(() => { currentPlaying = null; renderRadios(); }); } sortFavsToTop(); saveRadios(); renderRadios(); closeEditModal(); }
+        function exportRadios() { if(!radios.length) { alert('Lista vazia.'); return; } const dataStr = JSON.stringify(radios, null, 2); const blob = new Blob([dataStr], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `radios_${new Date().toISOString().slice(0,19)}.json`; a.click(); URL.revokeObjectURL(url); }
+        function openImportModal() { importModal.classList.add('show'); selectedFilenameSpan.textContent = ''; importConfirmBtn.disabled = true; fileInputEl.value = ''; importedBuffer = null; }
+        function closeImportModal() { importModal.classList.remove('show'); }
+        fileInputEl.addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) { importedBuffer = null; importConfirmBtn.disabled = true; selectedFilenameSpan.textContent = ''; return; } selectedFilenameSpan.textContent = file.name; const reader = new FileReader(); reader.onload = function(ev) { try { const parsed = JSON.parse(ev.target.result); if (!Array.isArray(parsed)) throw new Error('Formato inválido'); const cleaned = parsed.map(normalizeRadio).filter(Boolean); if (!cleaned.length) throw new Error('Nenhuma rádio válida'); importedBuffer = cleaned; importConfirmBtn.disabled = false; } catch(err) { alert('Erro: ' + err.message); selectedFilenameSpan.textContent = '❌ Inválido'; importedBuffer = null; importConfirmBtn.disabled = true; } }; reader.readAsText(file); });
+        function importFromFile() { if (!importedBuffer) return; if (currentPlaying !== null) { globalAudio.pause(); currentPlaying = null; } radios = importedBuffer.slice(); sortFavsToTop(); saveRadios(); renderRadios(); closeImportModal(); importedBuffer = null; importConfirmBtn.disabled = true; }
+        function clearAllRadios() { if (confirm('⚠️ APAGAR TODAS?')) { if (currentPlaying !== null) globalAudio.pause(); currentPlaying = null; radios = []; saveRadios(); renderRadios(); } }
 
-        // Função para apagar uma rádio individual
-        function deleteRadio(index) {
-            if (!radios[index]) return;
-            
-            const radioNome = radios[index].nome;
-            if (confirm(`Tem certeza que deseja apagar a rádio "${radioNome}"?`)) {
-                // Se a rádio que está a ser apagada está a tocar, parar
-                if (currentPlaying === index) {
-                    globalAudio.pause();
-                    currentPlaying = null;
-                }
-                
-                // Remover a rádio do array
-                radios.splice(index, 1);
-                
-                // Ajustar o currentPlaying se necessário
-                if (currentPlaying !== null && currentPlaying > index) {
-                    currentPlaying--;
-                }
-                
-                renderRadios();
-            }
-        }
+        addModal.addEventListener('click', (e) => { if(e.target === addModal) closeAddModal(); });
+        editModal.addEventListener('click', (e) => { if(e.target === editModal) closeEditModal(); });
+        importModal.addEventListener('click', (e) => { if(e.target === importModal) closeImportModal(); });
+        sleepModal.addEventListener('click', (e) => { if(e.target === sleepModal) closeSleepModal(); });
+        gistModal.addEventListener('click', (e) => { if(e.target === gistModal) closeGistModal(); });
+        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') { closeAddModal(); closeEditModal(); closeImportModal(); closeSleepModal(); closeGistModal(); } });
+        globalAudio.addEventListener('error', () => { if(currentPlaying !== null) { alert('Erro no stream.'); currentPlaying = null; renderRadios(); } });
+        globalAudio.addEventListener('ended', () => { currentPlaying = null; renderRadios(); });
 
-        // Funções do modal de adicionar
-        function openAddModal() {
-            addModal.classList.add('show');
-            document.getElementById('radioName').value = '';
-            document.getElementById('radioUrl').value = '';
-        }
-
-        function closeAddModal() {
-            addModal.classList.remove('show');
-        }
-
-        function addRadio() {
-            const nome = document.getElementById('radioName').value.trim();
-            const stream = document.getElementById('radioUrl').value.trim();
-            
-            if (!nome || !stream) {
-                alert('Por favor, preencha todos os campos!');
-                return;
-            }
-            
-            if (!stream.startsWith('http://') && !stream.startsWith('https://')) {
-                alert('Por favor, insira um link válido (deve começar com http:// ou https://)');
-                return;
-            }
-            
-            radios.push({ nome, stream });
-            renderRadios();
-            closeAddModal();
-        }
-
-        // Funções do modal de editar
-        function openEditModal(index) {
-            if (!radios[index]) return;
-            
-            editIndex = index;
-            const radio = radios[index];
-            
-            document.getElementById('editRadioName').value = radio.nome;
-            document.getElementById('editRadioUrl').value = radio.stream;
-            
-            editModal.classList.add('show');
-        }
-
-        function closeEditModal() {
-            editModal.classList.remove('show');
-            editIndex = null;
-        }
-
-        function saveEditRadio() {
-            if (editIndex === null || !radios[editIndex]) {
-                closeEditModal();
-                return;
-            }
-            
-            const nome = document.getElementById('editRadioName').value.trim();
-            const stream = document.getElementById('editRadioUrl').value.trim();
-            
-            if (!nome || !stream) {
-                alert('Por favor, preencha todos os campos!');
-                return;
-            }
-            
-            if (!stream.startsWith('http://') && !stream.startsWith('https://')) {
-                alert('Por favor, insira um link válido (deve começar com http:// ou https://)');
-                return;
-            }
-            
-            // Se a rádio que está a ser editada está a tocar, parar
-            if (currentPlaying === editIndex) {
-                globalAudio.pause();
-                currentPlaying = null;
-            }
-            
-            // Atualizar os dados
-            radios[editIndex].nome = nome;
-            radios[editIndex].stream = stream;
-            
-            renderRadios();
-            closeEditModal();
-        }
-
-        // Função para exportar rádios
-        function exportRadios() {
-            if (!radios || radios.length === 0) {
-                alert('Não há rádios para exportar');
-                return;
-            }
-            
-            const dataStr = JSON.stringify(radios, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `radios-${new Date().toISOString().slice(0,10)}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-        }
-
-        // FUNÇÃO DE IMPORTAÇÃO
-        function openImportModal() {
-            importModal.classList.add('show');
-            selectedFilename.textContent = '';
-            importConfirmBtn.disabled = true;
-            fileInput.value = '';
-        }
-
-        function closeImportModal() {
-            importModal.classList.remove('show');
-        }
-
-        // Detetar quando um ficheiro é selecionado
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                importConfirmBtn.disabled = true;
-                selectedFilename.textContent = '';
-                return;
-            }
-
-            selectedFilename.textContent = file.name;
-            
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    // Parse do JSON
-                    const importedRadios = JSON.parse(e.target.result);
-                    
-                    // Verificar se é um array
-                    if (!Array.isArray(importedRadios)) {
-                        throw new Error('O ficheiro deve conter um array');
-                    }
-                    
-                    // Validar cada rádio
-                    let validCount = 0;
-                    for (let i = 0; i < importedRadios.length; i++) {
-                        const radio = importedRadios[i];
-                        if (radio && radio.nome && radio.stream) {
-                            validCount++;
-                        }
-                    }
-                    
-                    if (validCount === 0) {
-                        throw new Error('Nenhuma rádio válida encontrada');
-                    }
-                    
-                    // Guardar os dados e ativar botão
-                    window.importedData = importedRadios;
-                    importConfirmBtn.disabled = false;
-                    
-                } catch (error) {
-                    alert('Erro no ficheiro: ' + error.message);
-                    selectedFilename.textContent = '❌ Ficheiro inválido';
-                    window.importedData = null;
-                    importConfirmBtn.disabled = true;
-                }
-            };
-            
-            reader.readAsText(file);
-        });
-
-        // Função para importar do ficheiro (sem confirmação)
-        function importFromFile() {
-            if (!window.importedData) return;
-            
-            // Parar reprodução
-            if (currentPlaying !== null) {
-                globalAudio.pause();
-                currentPlaying = null;
-            }
-            
-            // Substituir lista
-            radios = window.importedData.slice();
-            
-            // Atualizar interface
-            renderRadios();
-            
-            // Fechar modal
-            closeImportModal();
-            
-            // Limpar dados
-            window.importedData = null;
-            importConfirmBtn.disabled = true;
-        }
-
-        // Função para limpar lista (sem confirmação)
-        function clearAllRadios() {
-            if (confirm('⚠️ Tem certeza que deseja REMOVER TODAS as rádios? Esta ação não pode ser desfeita.')) {
-                if (currentPlaying !== null) {
-                    globalAudio.pause();
-                    currentPlaying = null;
-                }
-                
-                // Limpar o array
-                radios = [];
-                
-                // Guardar no localStorage
-                saveRadios();
-                
-                // Atualizar interface
-                renderRadios();
-            }
-        }
-
-        // Eventos para fechar modais
-        addModal.addEventListener('click', function(e) {
-            if (e.target === addModal) closeAddModal();
-        });
-
-        editModal.addEventListener('click', function(e) {
-            if (e.target === editModal) closeEditModal();
-        });
-
-        importModal.addEventListener('click', function(e) {
-            if (e.target === importModal) closeImportModal();
-        });
-
-        // Tecla ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (addModal.classList.contains('show')) closeAddModal();
-                if (editModal.classList.contains('show')) closeEditModal();
-                if (importModal.classList.contains('show')) closeImportModal();
-            }
-        });
-
-        // Eventos do áudio
-        globalAudio.addEventListener('ended', function() {
-            currentPlaying = null;
-            renderRadios();
-        });
-
-        globalAudio.addEventListener('error', function() {
-            if (currentPlaying !== null) {
-                alert('Erro ao reproduzir a rádio. O stream pode não estar disponível.');
-                currentPlaying = null;
-                renderRadios();
-            }
-        });
-
-        // Carregar rádios ao iniciar
+        loadCompactMode();
         loadRadios();
+        checkSavedSleepTimer();
 
-        // Tornar funções globais
-        window.openAddModal = openAddModal;
-        window.closeAddModal = closeAddModal;
-        window.addRadio = addRadio;
-        window.openEditModal = openEditModal;
-        window.closeEditModal = closeEditModal;
-        window.saveEditRadio = saveEditRadio;
-        window.deleteRadio = deleteRadio;
-        window.exportRadios = exportRadios;
-        window.openImportModal = openImportModal;
-        window.closeImportModal = closeImportModal;
-        window.importFromFile = importFromFile;
-        window.clearAllRadios = clearAllRadios;
-        window.toggleRadio = toggleRadio;
+        window.toggleCompactMode = toggleCompactMode;
+        window.openSleepModal = openSleepModal; window.startSleepTimer = startSleepTimer; window.closeSleepModal = closeSleepModal; window.cancelSleepTimerAndClose = cancelSleepTimerAndClose;
+        window.openGistModal = openGistModal; window.closeGistModal = closeGistModal; window.loadFromGist = loadFromGist; window.saveToGist = saveToGist;
+        window.openAddModal = openAddModal; window.closeAddModal = closeAddModal; window.addRadio = addRadio;
+        window.openEditModal = openEditModal; window.closeEditModal = closeEditModal; window.saveEditRadio = saveEditRadio;
+        window.deleteRadio = deleteRadio; window.exportRadios = exportRadios; window.openImportModal = openImportModal;
+        window.closeImportModal = closeImportModal; window.importFromFile = importFromFile; window.clearAllRadios = clearAllRadios;
+        window.toggleRadio = toggleRadio; window.toggleFavorite = toggleFavorite;
     </script>
 </body>
 </html>
