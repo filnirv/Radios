@@ -392,19 +392,18 @@
             letter-spacing: 0.5px;
         }
 
-        /* Modal de alerta simples - sem ícones */
+        /* Modal de alerta - sem título, fonte maior */
         .alert-modal .modal-content {
             border-color: var(--danger);
-        }
-        .alert-modal h2 {
-            color: var(--danger);
+            padding: 28px 24px;
         }
         .alert-message {
             text-align: center;
-            margin-bottom: 24px;
-            color: #ddd;
+            margin-bottom: 28px;
+            color: #f0f0f0;
             line-height: 1.5;
-            font-size: 14px;
+            font-size: 18px;
+            font-weight: 500;
         }
 
         .form-group {
@@ -532,6 +531,8 @@
         .alert-btn {
             background: linear-gradient(180deg, #ff5c5c, #e43a3a);
             color: #fff;
+            font-size: 15px;
+            padding: 12px;
         }
 
         .alert-btn:hover {
@@ -592,6 +593,9 @@
                 padding: 0 8px;
                 font-size: 12px;
             }
+            .alert-message {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -618,10 +622,9 @@
         </div>
     </div>
 
-    <!-- Modal de Alerta Personalizado - sem ícones -->
+    <!-- Modal de Alerta Personalizado - sem título, fonte maior -->
     <div class="modal alert-modal" id="alertModal">
         <div class="modal-content">
-            <h2>AVISO</h2>
             <div class="alert-message" id="alertMessageText"></div>
             <div class="modal-buttons">
                 <button class="alert-btn" onclick="closeAlertModal()">OK</button>
@@ -636,7 +639,7 @@
             <div class="form-group">
                 <label>TOKEN (guardado localmente)</label>
                 <input type="password" id="gistTokenInput" placeholder="GitHub token (para guardar)">
-                <div class="gist-preview">🔑 Token persistente após refresh. Necessário para escrever.</div>
+                <div class="gist-preview">Token persistente após refresh. Necessário para escrever.</div>
             </div>
             <div class="form-group">
                 <label>GIST ID</label>
@@ -647,8 +650,8 @@
                 <input type="text" id="gistFilenameInput" placeholder="radios.json" value="radios.json">
             </div>
             <div class="modal-buttons">
-                <button class="save-btn" onclick="loadFromGist()">📥 CARREGAR</button>
-                <button class="confirm-btn" onclick="saveToGist()">📤 GUARDAR</button>
+                <button class="save-btn" onclick="loadFromGist()">CARREGAR</button>
+                <button class="confirm-btn" onclick="saveToGist()">GUARDAR</button>
                 <button class="cancel-btn" onclick="closeGistModal()">CANC</button>
             </div>
         </div>
@@ -724,7 +727,7 @@
                 <div class="filename" id="selectedFilename"></div>
             </div>
             <input type="file" id="fileInput" class="file-input" accept=".json,application/json">
-            <p class="warning-text">⚠️ Substitui lista atual.</p>
+            <p class="warning-text">Substitui lista atual.</p>
             <div class="modal-buttons">
                 <button class="confirm-btn" id="importConfirmBtn" onclick="importFromFile()" disabled>IMPORT</button>
                 <button class="cancel-btn" onclick="closeImportModal()">CANC</button>
@@ -771,7 +774,7 @@
         const fileInputEl = document.getElementById('fileInput');
         const appContainer = document.getElementById('appContainer');
 
-        // Função para mostrar alerta personalizado - mensagem simples, sem ícones
+        // Alerta personalizado - sem título, fonte maior
         function showAlert(message) {
             alertMessageText.textContent = message;
             alertModal.classList.add('show');
@@ -873,7 +876,7 @@
             if (savedEnd) { const end = parseInt(savedEnd, 10); if (!isNaN(end) && end > Date.now()) { sleepTimerEndTime = end; const remaining = end - Date.now(); const minutesRemaining = Math.ceil(remaining / 60000); startSleepTimerFromMinutes(minutesRemaining); } else localStorage.removeItem(SLEEP_TIMER_KEY); }
         }
 
-        function openSleepModal() { sleepModal.classList.add('show'); const statusDiv = document.getElementById('sleepTimerStatus'); if (sleepTimerEndTime && sleepTimerEndTime > Date.now()) { const remaining = sleepTimerEndTime - Date.now(); const mins = Math.floor(remaining / 60000); const secs = Math.floor((remaining % 60000) / 1000); statusDiv.style.display = 'block'; statusDiv.innerHTML = `<div>⏳ Ativo</div><div class="timer-countdown">${mins}:${secs.toString().padStart(2,'0')}</div><button class="cancel-timer-btn" onclick="cancelSleepTimerAndClose()">Cancelar</button>`; } else statusDiv.style.display = 'none'; }
+        function openSleepModal() { sleepModal.classList.add('show'); const statusDiv = document.getElementById('sleepTimerStatus'); if (sleepTimerEndTime && sleepTimerEndTime > Date.now()) { const remaining = sleepTimerEndTime - Date.now(); const mins = Math.floor(remaining / 60000); const secs = Math.floor((remaining % 60000) / 1000); statusDiv.style.display = 'block'; statusDiv.innerHTML = `<div>Ativo</div><div class="timer-countdown">${mins}:${secs.toString().padStart(2,'0')}</div><button class="cancel-timer-btn" onclick="cancelSleepTimerAndClose()">Cancelar</button>`; } else statusDiv.style.display = 'none'; }
         function cancelSleepTimerAndClose() { stopSleepTimer(); closeSleepModal(); renderRadios(); }
         function startSleepTimer() { const select = document.getElementById('sleepMinutesSelect'); const minutes = parseInt(select.value, 10); if (isNaN(minutes) || minutes <= 0) return; startSleepTimerFromMinutes(minutes); closeSleepModal(); }
         function closeSleepModal() { sleepModal.classList.remove('show'); }
