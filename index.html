@@ -392,6 +392,25 @@
             letter-spacing: 0.5px;
         }
 
+        /* Modal de erro personalizado */
+        .error-modal .modal-content {
+            border-color: var(--danger);
+        }
+        .error-modal h2 {
+            color: var(--danger);
+        }
+        .error-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .error-message {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #ddd;
+            line-height: 1.5;
+        }
+
         .form-group {
             margin-bottom: 18px;
         }
@@ -469,7 +488,7 @@
             margin-top: 20px;
         }
 
-        .save-btn, .confirm-btn, .cancel-btn {
+        .save-btn, .confirm-btn, .cancel-btn, .error-btn {
             flex: 1;
             padding: 11px;
             border: none;
@@ -512,6 +531,15 @@
 
         .cancel-btn:hover {
             background: #2e2e2e;
+        }
+
+        .error-btn {
+            background: linear-gradient(180deg, #ff5c5c, #e43a3a);
+            color: #fff;
+        }
+
+        .error-btn:hover {
+            transform: translateY(-1px);
         }
 
         .footer {
@@ -591,6 +619,18 @@
         <ul class="radio-list" id="radioList"></ul>
         <div class="footer">
             <p>⭐ favorito | ▶️ play/stop | ✏️ editar | 🗑️ apagar | 📐 compacto | ⏰ timer | ☁️ sync</p>
+        </div>
+    </div>
+
+    <!-- Modal de Erro Personalizado -->
+    <div class="modal error-modal" id="errorModal">
+        <div class="modal-content">
+            <div class="error-icon">⚠️</div>
+            <h2>ERRO</h2>
+            <div class="error-message" id="errorMessageText">Ocorreu um erro.</div>
+            <div class="modal-buttons">
+                <button class="error-btn" onclick="closeErrorModal()">OK</button>
+            </div>
         </div>
     </div>
 
@@ -728,11 +768,23 @@
         const importModal = document.getElementById('importModal');
         const sleepModal = document.getElementById('sleepModal');
         const gistModal = document.getElementById('gistModal');
+        const errorModal = document.getElementById('errorModal');
+        const errorMessageText = document.getElementById('errorMessageText');
         const globalAudio = document.getElementById('globalAudio');
         const importConfirmBtn = document.getElementById('importConfirmBtn');
         const selectedFilenameSpan = document.getElementById('selectedFilename');
         const fileInputEl = document.getElementById('fileInput');
         const appContainer = document.getElementById('appContainer');
+
+        // Função para mostrar modal de erro personalizado
+        function showError(message) {
+            errorMessageText.textContent = message;
+            errorModal.classList.add('show');
+        }
+
+        function closeErrorModal() {
+            errorModal.classList.remove('show');
+        }
 
         function generateId() {
             return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
@@ -813,7 +865,7 @@
                 if (remaining <= 0) {
                     if (currentPlaying !== null) { globalAudio.pause(); currentPlaying = null; renderRadios(); }
                     stopSleepTimer();
-                    alert('⏰ Timer: reprodução interrompida.');
+                    showError('⏰ Sleep timer: reprodução interrompida automaticamente.');
                 } else {
                     updateSleepButtonUI(true);
                 }
@@ -831,7 +883,6 @@
         function startSleepTimer() { const select = document.getElementById('sleepMinutesSelect'); const minutes = parseInt(select.value, 10); if (isNaN(minutes) || minutes <= 0) return; startSleepTimerFromMinutes(minutes); closeSleepModal(); }
         function closeSleepModal() { sleepModal.classList.remove('show'); }
 
-        // Gist Sync com token persistente
         function openGistModal() {
             const savedGist = localStorage.getItem(GIST_ID_KEY);
             const savedFilename = localStorage.getItem(GIST_FILENAME_KEY);
@@ -850,7 +901,7 @@
         async function loadFromGist() {
             const gistId = document.getElementById('gistIdInput').value.trim();
             const filename = document.getElementById('gistFilenameInput').value.trim() || 'radios.json';
-            if (!gistId) { alert('Gist ID necessário.'); return; }
+            if (!gistId) { showError('Gist ID necessário.'); return; }
             try {
                 const response = await fetch(`https://api.github.com/gists/${gistId}`);
                 if (!response.ok) throw new Error('Gist não encontrado');
@@ -868,9 +919,10 @@
                 localStorage.setItem(GIST_ID_KEY, gistId);
                 localStorage.setItem(GIST_FILENAME_KEY, filename);
                 renderRadios();
-                alert('✅ Sincronizado!');
+                showError('✅ Sincronizado com sucesso!');
+                setTimeout(closeErrorModal, 1500);
                 closeGistModal();
-            } catch (err) { alert('Erro: ' + err.message); }
+            } catch (err) { showError('Erro: ' + err.message); }
         }
 
         async function saveToGist() {
@@ -878,10 +930,9 @@
             const token = document.getElementById('gistTokenInput').value.trim();
             const filename = document.getElementById('gistFilenameInput').value.trim() || 'radios.json';
             
-            if (!gistId) { alert('Gist ID necessário.'); return; }
-            if (!token) { alert('Token necessário para escrever.'); return; }
+            if (!gistId) { showError('Gist ID necessário.'); return; }
+            if (!token) { showError('Token necessário para escrever.'); return; }
             
-            // Guardar token no localStorage
             localStorage.setItem(GIST_TOKEN_KEY, token);
             localStorage.setItem(GIST_ID_KEY, gistId);
             localStorage.setItem(GIST_FILENAME_KEY, filename);
@@ -897,9 +948,10 @@
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Erro ao guardar');
                 }
-                alert('✅ Guardado no Gist!');
+                showError('✅ Guardado no Gist!');
+                setTimeout(closeErrorModal, 1500);
                 closeGistModal();
-            } catch (err) { alert('Erro: ' + err.message); }
+            } catch (err) { showError('Erro: ' + err.message); }
         }
 
         function loadRadios() {
@@ -945,18 +997,54 @@
 
         function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
         function toggleFavorite(index) { if (!radios[index]) return; radios[index].favorito = !radios[index].favorito; sortFavsToTop(); saveRadios(); renderRadios(); }
-        function toggleRadio(index) { if (!radios[index]) return; const radio = radios[index]; if (currentPlaying === index) { globalAudio.pause(); currentPlaying = null; renderRadios(); } else { if (currentPlaying !== null) globalAudio.pause(); currentPlaying = index; renderRadios(); globalAudio.src = radio.stream; globalAudio.load(); globalAudio.play().catch(err => { alert(`Erro: ${radio.nome}`); currentPlaying = null; renderRadios(); }); } }
-        function deleteRadio(index) { if (!radios[index]) return; if (confirm(`Apagar "${radios[index].nome}"?`)) { if (currentPlaying === index) { globalAudio.pause(); currentPlaying = null; } radios.splice(index, 1); if (currentPlaying !== null && currentPlaying > index) currentPlaying--; else if (currentPlaying !== null && currentPlaying >= radios.length) currentPlaying = null; saveRadios(); renderRadios(); } }
+        
+        function toggleRadio(index) {
+            if (!radios[index]) return;
+            const radio = radios[index];
+            if (currentPlaying === index) {
+                globalAudio.pause();
+                currentPlaying = null;
+                renderRadios();
+            } else {
+                if (currentPlaying !== null) globalAudio.pause();
+                currentPlaying = index;
+                renderRadios();
+                globalAudio.src = radio.stream;
+                globalAudio.load();
+                globalAudio.play().catch(err => {
+                    console.error(err);
+                    showError(`❌ Não foi possível reproduzir "${radio.nome}".\nVerifique o link do stream.`);
+                    currentPlaying = null;
+                    renderRadios();
+                });
+            }
+        }
+        
+        function deleteRadio(index) {
+            if (!radios[index]) return;
+            if (confirm(`Apagar "${radios[index].nome}"?`)) {
+                if (currentPlaying === index) {
+                    globalAudio.pause();
+                    currentPlaying = null;
+                }
+                radios.splice(index, 1);
+                if (currentPlaying !== null && currentPlaying > index) currentPlaying--;
+                else if (currentPlaying !== null && currentPlaying >= radios.length) currentPlaying = null;
+                saveRadios();
+                renderRadios();
+            }
+        }
+        
         function openAddModal() { addModal.classList.add('show'); document.getElementById('radioName').value = ''; document.getElementById('radioUrl').value = ''; }
         function closeAddModal() { addModal.classList.remove('show'); }
-        function addRadio() { const nome = document.getElementById('radioName').value.trim(); const stream = document.getElementById('radioUrl').value.trim(); if (!nome || !stream) { alert('Preencha ambos.'); return; } if (!/^https?:\/\//i.test(stream)) { alert('URL inválido'); return; } radios.push({ id: generateId(), nome, stream, favorito: false }); sortFavsToTop(); saveRadios(); renderRadios(); closeAddModal(); }
+        function addRadio() { const nome = document.getElementById('radioName').value.trim(); const stream = document.getElementById('radioUrl').value.trim(); if (!nome || !stream) { showError('Preencha nome e URL.'); return; } if (!/^https?:\/\//i.test(stream)) { showError('URL inválido (deve iniciar com http:// ou https://)'); return; } radios.push({ id: generateId(), nome, stream, favorito: false }); sortFavsToTop(); saveRadios(); renderRadios(); closeAddModal(); }
         function openEditModal(index) { if(!radios[index]) return; editIndex = index; document.getElementById('editRadioName').value = radios[index].nome; document.getElementById('editRadioUrl').value = radios[index].stream; editModal.classList.add('show'); }
         function closeEditModal() { editModal.classList.remove('show'); editIndex = null; }
-        function saveEditRadio() { if (editIndex === null || !radios[editIndex]) { closeEditModal(); return; } const nome = document.getElementById('editRadioName').value.trim(); const stream = document.getElementById('editRadioUrl').value.trim(); if (!nome || !stream) { alert('Preencha ambos.'); return; } if (!/^https?:\/\//i.test(stream)) { alert('Stream inválido'); return; } const wasPlaying = (currentPlaying === editIndex); radios[editIndex].nome = nome; radios[editIndex].stream = stream; if (wasPlaying) { globalAudio.pause(); globalAudio.src = stream; globalAudio.load(); globalAudio.play().catch(() => { currentPlaying = null; renderRadios(); }); } sortFavsToTop(); saveRadios(); renderRadios(); closeEditModal(); }
-        function exportRadios() { if(!radios.length) { alert('Lista vazia.'); return; } const dataStr = JSON.stringify(radios, null, 2); const blob = new Blob([dataStr], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `radios_${new Date().toISOString().slice(0,19)}.json`; a.click(); URL.revokeObjectURL(url); }
+        function saveEditRadio() { if (editIndex === null || !radios[editIndex]) { closeEditModal(); return; } const nome = document.getElementById('editRadioName').value.trim(); const stream = document.getElementById('editRadioUrl').value.trim(); if (!nome || !stream) { showError('Preencha ambos os campos.'); return; } if (!/^https?:\/\//i.test(stream)) { showError('Stream inválido.'); return; } const wasPlaying = (currentPlaying === editIndex); radios[editIndex].nome = nome; radios[editIndex].stream = stream; if (wasPlaying) { globalAudio.pause(); globalAudio.src = stream; globalAudio.load(); globalAudio.play().catch(() => { currentPlaying = null; renderRadios(); }); } sortFavsToTop(); saveRadios(); renderRadios(); closeEditModal(); }
+        function exportRadios() { if(!radios.length) { showError('Lista vazia.'); return; } const dataStr = JSON.stringify(radios, null, 2); const blob = new Blob([dataStr], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `radios_${new Date().toISOString().slice(0,19)}.json`; a.click(); URL.revokeObjectURL(url); }
         function openImportModal() { importModal.classList.add('show'); selectedFilenameSpan.textContent = ''; importConfirmBtn.disabled = true; fileInputEl.value = ''; importedBuffer = null; }
         function closeImportModal() { importModal.classList.remove('show'); }
-        fileInputEl.addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) { importedBuffer = null; importConfirmBtn.disabled = true; selectedFilenameSpan.textContent = ''; return; } selectedFilenameSpan.textContent = file.name; const reader = new FileReader(); reader.onload = function(ev) { try { const parsed = JSON.parse(ev.target.result); if (!Array.isArray(parsed)) throw new Error('Formato inválido'); const cleaned = parsed.map(normalizeRadio).filter(Boolean); if (!cleaned.length) throw new Error('Nenhuma rádio válida'); importedBuffer = cleaned; importConfirmBtn.disabled = false; } catch(err) { alert('Erro: ' + err.message); selectedFilenameSpan.textContent = '❌ Inválido'; importedBuffer = null; importConfirmBtn.disabled = true; } }; reader.readAsText(file); });
+        fileInputEl.addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) { importedBuffer = null; importConfirmBtn.disabled = true; selectedFilenameSpan.textContent = ''; return; } selectedFilenameSpan.textContent = file.name; const reader = new FileReader(); reader.onload = function(ev) { try { const parsed = JSON.parse(ev.target.result); if (!Array.isArray(parsed)) throw new Error('Formato inválido'); const cleaned = parsed.map(normalizeRadio).filter(Boolean); if (!cleaned.length) throw new Error('Nenhuma rádio válida'); importedBuffer = cleaned; importConfirmBtn.disabled = false; } catch(err) { showError('Erro: ' + err.message); selectedFilenameSpan.textContent = '❌ Inválido'; importedBuffer = null; importConfirmBtn.disabled = true; } }; reader.readAsText(file); });
         function importFromFile() { if (!importedBuffer) return; if (currentPlaying !== null) { globalAudio.pause(); currentPlaying = null; } radios = importedBuffer.slice(); sortFavsToTop(); saveRadios(); renderRadios(); closeImportModal(); importedBuffer = null; importConfirmBtn.disabled = true; }
         function clearAllRadios() { if (confirm('⚠️ APAGAR TODAS?')) { if (currentPlaying !== null) globalAudio.pause(); currentPlaying = null; radios = []; saveRadios(); renderRadios(); } }
 
@@ -965,8 +1053,9 @@
         importModal.addEventListener('click', (e) => { if(e.target === importModal) closeImportModal(); });
         sleepModal.addEventListener('click', (e) => { if(e.target === sleepModal) closeSleepModal(); });
         gistModal.addEventListener('click', (e) => { if(e.target === gistModal) closeGistModal(); });
-        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') { closeAddModal(); closeEditModal(); closeImportModal(); closeSleepModal(); closeGistModal(); } });
-        globalAudio.addEventListener('error', () => { if(currentPlaying !== null) { alert('Erro no stream.'); currentPlaying = null; renderRadios(); } });
+        errorModal.addEventListener('click', (e) => { if(e.target === errorModal) closeErrorModal(); });
+        document.addEventListener('keydown', (e) => { if(e.key === 'Escape') { closeAddModal(); closeEditModal(); closeImportModal(); closeSleepModal(); closeGistModal(); closeErrorModal(); } });
+        globalAudio.addEventListener('error', () => { if(currentPlaying !== null) { showError(`❌ Erro no stream. A rádio pode estar offline.`); currentPlaying = null; renderRadios(); } });
         globalAudio.addEventListener('ended', () => { currentPlaying = null; renderRadios(); });
 
         loadCompactMode();
@@ -981,6 +1070,7 @@
         window.deleteRadio = deleteRadio; window.exportRadios = exportRadios; window.openImportModal = openImportModal;
         window.closeImportModal = closeImportModal; window.importFromFile = importFromFile; window.clearAllRadios = clearAllRadios;
         window.toggleRadio = toggleRadio; window.toggleFavorite = toggleFavorite;
+        window.closeErrorModal = closeErrorModal;
     </script>
 </body>
 </html>
